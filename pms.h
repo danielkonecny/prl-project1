@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include <mpi.h>
+
 using namespace std;
 
 vector<int> read_input(string file_name);

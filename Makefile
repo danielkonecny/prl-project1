@@ -9,7 +9,6 @@
 # Macros
 MPI = mpic++
 SUFFIX = cpp
-PFLAGS = -Wall -Wextra -pedantic
 PROJECT = pms
 LOGIN = xkonec75
 TEST_FILE = test.sh
