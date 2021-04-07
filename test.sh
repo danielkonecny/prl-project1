@@ -1,15 +1,12 @@
 #!/bin/bash
 
-if [ $# -lt 1 ];then 
-    numbers=16;
-else
-    numbers=$1;
-fi;
+$numbers = 16
+$processes = 5
 
 mpic++ -o pms pms.cpp pms.h
 
-dd if=/dev/random bs=1 count=$numbers of=numbers
+dd if=/dev/random bs=1 count=16 of=$numbers 1>/dev/null 2>/dev/null
 
-mpirun --use-hwthread-cpus --oversubscribe -np $numbers pms
+mpirun --use-hwthread-cpus --oversubscribe -np $processes pms
 
 rm -f pms numbers

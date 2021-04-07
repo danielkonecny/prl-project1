@@ -14,13 +14,14 @@ PROJECT = pms
 LOGIN = xkonec75
 TEST_FILE = test.sh
 NUMBER_FILE = numbers
-PROCESS_NUMBER = 16
+NUMBER_COUNT = 16
+PROCESS_COUNT = 5
 
 all: $(PROJECT)
 
 run: $(PROJECT)
-	dd if=/dev/random bs=1 count=$(PROCESS_NUMBER) of=$(NUMBER_FILE)
-	mpirun --use-hwthread-cpus --oversubscribe -np $(PROCESS_NUMBER) $^
+	dd if=/dev/random bs=1 count=$(NUMBER_COUNT) of=$(NUMBER_FILE) 1>/dev/null 2>/dev/null
+	mpirun --use-hwthread-cpus --oversubscribe -np $(PROCESS_COUNT) $^
 	rm -f $(NUMBER_FILE)
 
 test:
