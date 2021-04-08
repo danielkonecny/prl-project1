@@ -83,12 +83,16 @@ vector<int> middle_processor(MPI_Status stat, int process_id, vector<int> sorted
     int power = pow(2, process_id);
     int queue_length = pow(2, process_id-1);
 
+    // Loop until all of 16 numbers are sent to the next processor.
     while (sent < NUMBER_COUNT) {
         int new_number;
 
+        // Load a new number each iteration until all 16 numbers are loaded.
         if (loaded < NUMBER_COUNT) {
             MPI_Recv(&new_number, 1, MPI_INT, process_id-1, TAG, MPI_COMM_WORLD, &stat);
 
+            // Evenly distributes the recieved number between queues
+            // according to the rank of the processor.
             if (loaded % power < queue_length) {
                 queue_upper.push(new_number);
             }
@@ -98,6 +102,7 @@ vector<int> middle_processor(MPI_Status stat, int process_id, vector<int> sorted
             loaded++;
         }
 
+        // Wait until the queues are long enough and then set ready flag to true.
         if (!ready) {
             if ((queue_upper.size() >= queue_length && queue_lower.size() >= 1) ||
                 (queue_upper.size() >= 1 && queue_lower.size() >= queue_length)) {
@@ -122,8 +127,12 @@ vector<int> middle_processor(MPI_Status stat, int process_id, vector<int> sorted
             upper_sent++;
         }
 
+        // If all of the number in the batch that is processed are sent,
+        // reset the counters to be ready for a new batch.
         check_and_reset_counters(&upper_sent, &lower_sent, queue_length);
 
+        // Either sends the number to a new processor or adds it to a sorted array
+        // if this is the last processor.
         sorted_numbers = process_new_number(process_id, new_number, sorted_numbers);
         sent++;
     }
@@ -139,6 +148,7 @@ int main (int argc, char *argv[]) {
 
     vector<int> sorted_numbers;
 
+    // The first processor just loads the numbers and sends it to the second one.
     if (process_id == 0) {
         vector<int> unsorted_numbers;
         unsorted_numbers = read_input(INPUT_FILE_NAME);
@@ -148,10 +158,12 @@ int main (int argc, char *argv[]) {
             MPI_Send(&number, 1, MPI_INT, process_id+1, TAG, MPI_COMM_WORLD);
         }
     }
+    // All of the following processors do the merging algorithms.
     else if (process_id >= 1 && process_id <= 4) {
         sorted_numbers = middle_processor(stat, process_id, sorted_numbers);
     }
 
+    // The last processor has to also print the sorted numbers.
     if (process_id == 4) {
         print_sorted_numbers(sorted_numbers);
     }
